@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const pool = require('./db');
+const authRoutes = require('./routes/auth.routes');
 
 const app = express();
 
@@ -20,5 +21,7 @@ app.get('/api/v1/health/db', async (req, res) => {
     res.status(500).json({ status: 'error', base_de_datos: 'sin conexión' });
   }
 });
+
+app.use('/api/v1/auth', authRoutes);
 
 module.exports = app;
