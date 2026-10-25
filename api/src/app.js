@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const pool = require('./db');
 const authRoutes = require('./routes/auth.routes');
+const perfilRoutes = require('./routes/perfil.routes');
 
 const app = express();
 
@@ -23,5 +24,6 @@ app.get('/api/v1/health/db', async (req, res) => {
 });
 
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/perfil', perfilRoutes);
 
 module.exports = app;

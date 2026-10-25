@@ -18,4 +18,9 @@ const registroSchema = z.object({
     .refine((valor) => valor === true, 'Debes aceptar los términos y condiciones'),
 });
 
-module.exports = { registroSchema };
+const loginSchema = z.object({
+  email: z.string().trim().toLowerCase().email('El correo no es válido'),
+  password: z.string().min(1, 'La contraseña es obligatoria'),
+});
+
+module.exports = { registroSchema, loginSchema };
