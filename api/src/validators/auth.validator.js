@@ -23,4 +23,21 @@ const loginSchema = z.object({
   password: z.string().min(1, 'La contraseña es obligatoria'),
 });
 
-module.exports = { registroSchema, loginSchema };
+const olvidePasswordSchema = z.object({
+  email: z.string().trim().toLowerCase().email('El correo no es válido'),
+});
+
+const restablecerPasswordSchema = z.object({
+  token: z.string().min(1, 'El token es obligatorio'),
+  password: z
+    .string()
+    .min(8, 'La contraseña debe tener al menos 8 caracteres')
+    .max(72, 'La contraseña no puede superar 72 caracteres'),
+});
+
+module.exports = {
+  registroSchema,
+  loginSchema,
+  olvidePasswordSchema,
+  restablecerPasswordSchema,
+};
