@@ -17,5 +17,24 @@ services:
       timeout: 5s
       retries: 10
 
+  api:
+    build: ./api
+    container_name: farmiq_api
+    restart: unless-stopped
+    env_file:
+      - ./api/.env
+    environment:
+      # Dentro de Docker la base de datos se llama "db", no "localhost"
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      # El código se monta para ver los cambios sin reconstruir la imagen
+      - ./api:/app
+      - /app/node_modules
+
 volumes:
   farmiq_data:
