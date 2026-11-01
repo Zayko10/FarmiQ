@@ -17,6 +17,23 @@ function requireAuth(req, res, next) {
   }
 }
 
+// Para endpoints públicos que muestran algo extra si hay sesión (por ejemplo, el corazón de favorito).
+// Si no hay token, o es inválido, la petición continúa como invitado.
+function authOpcional(req, res, next) {
+  const cabecera = req.headers.authorization || '';
+  const [tipo, token] = cabecera.split(' ');
+
+  if (tipo === 'Bearer' && token) {
+    try {
+      const datos = jwt.verify(token, process.env.JWT_SECRET);
+      req.usuario = { id: datos.sub, rol: datos.rol };
+    } catch (error) {
+      // token inválido: se trata como invitado
+    }
+  }
+  return next();
+}
+
 function requireRol(...roles) {
   return (req, res, next) => {
     if (!req.usuario || !roles.includes(req.usuario.rol)) {
@@ -26,4 +43,4 @@ function requireRol(...roles) {
   };
 }
 
-module.exports = { requireAuth, requireRol };
+module.exports = { requireAuth, authOpcional, requireRol };

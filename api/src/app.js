@@ -4,6 +4,8 @@ const pool = require('./db');
 const authRoutes = require('./routes/auth.routes');
 const perfilRoutes = require('./routes/perfil.routes');
 const medicamentosRoutes = require('./routes/medicamentos.routes');
+const boticasRoutes = require('./routes/boticas.routes');
+const favoritosRoutes = require('./routes/favoritos.routes');
 
 const app = express();
 
@@ -27,5 +29,7 @@ app.get('/api/v1/health/db', async (req, res) => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/perfil', perfilRoutes);
 app.use('/api/v1/medicamentos', medicamentosRoutes);
+app.use('/api/v1/boticas', boticasRoutes);
+app.use('/api/v1/favoritos', favoritosRoutes);
 
 module.exports = app;
