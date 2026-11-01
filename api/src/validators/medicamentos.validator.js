@@ -38,4 +38,20 @@ const idSchema = z.object({
     .regex(/^\d{1,15}$/, 'El identificador del medicamento no es válido'),
 });
 
-module.exports = { busquedaSchema, idSchema };
+// HU04: ubicación opcional del cliente (si envía una coordenada debe enviar la otra)
+const ubicacionSchema = z
+  .object({
+    lat: numero(-90, 90, 'Latitud no válida').optional(),
+    lng: numero(-180, 180, 'Longitud no válida').optional(),
+  })
+  .superRefine((datos, ctx) => {
+    if ((datos.lat === undefined) !== (datos.lng === undefined)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: [datos.lat === undefined ? 'lat' : 'lng'],
+        message: 'Envía lat y lng juntas para calcular la distancia',
+      });
+    }
+  });
+
+module.exports = { busquedaSchema, idSchema, ubicacionSchema };

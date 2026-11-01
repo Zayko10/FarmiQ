@@ -49,7 +49,18 @@ async function obtenerDetalle(req, res) {
         }
       : { disponible: false, mensaje: 'Ficha técnica no disponible' };
 
+    // null = invitado (sin sesión); true/false = estado del corazón para el cliente
+    let esFavorito = null;
+    if (req.usuario) {
+      const fav = await pool.query(
+        'SELECT 1 FROM favoritos WHERE usuario_id = $1 AND medicamento_id = $2',
+        [req.usuario.id, m.id]
+      );
+      esFavorito = fav.rowCount > 0;
+    }
+
     return res.status(200).json({
+      es_favorito: esFavorito,
       medicamento: {
         id: m.id,
         nombre: m.nombre,
