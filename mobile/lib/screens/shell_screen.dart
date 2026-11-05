@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'buscar_screen.dart';
 import 'inicio_screen.dart';
-import 'proximamente_screen.dart';
+import 'cuenta_screen.dart';
+import 'reservas_screen.dart';
+import 'sedes_screen.dart';
 
-/// Estructura principal: barra de navegación inferior con las 5 secciones del diseño.
+/// Estructura principal del cliente: barra de navegación inferior con las 5 secciones del diseño.
 class ShellScreen extends StatefulWidget {
   const ShellScreen({super.key});
 
@@ -29,21 +31,9 @@ class _ShellScreenState extends State<ShellScreen> {
         children: [
           InicioScreen(onBuscar: _irABuscar),
           BuscarScreen(key: _buscarKey),
-          const ProximamenteScreen(
-            titulo: 'Sedes',
-            icono: Icons.place_outlined,
-            mensaje: 'Aquí verás las boticas cercanas en un mapa.',
-          ),
-          const ProximamenteScreen(
-            titulo: 'Reservas',
-            icono: Icons.receipt_long_outlined,
-            mensaje: 'Aquí verás tus reservas. Se activa en el Sprint 2.',
-          ),
-          const ProximamenteScreen(
-            titulo: 'Mi cuenta',
-            icono: Icons.person_outline,
-            mensaje: 'Aquí iniciarás sesión y verás tus favoritos.',
-          ),
+          const SedesScreen(),
+          const ReservasScreen(),
+          const CuentaScreen(),
         ],
       ),
       bottomNavigationBar: NavigationBar(

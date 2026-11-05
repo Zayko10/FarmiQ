@@ -86,6 +86,11 @@ async function restablecerPassword(req, res) {
       hash,
       rows[0].usuario_id,
     ]);
+    // Si la cuenta estaba bloqueada por intentos fallidos, restablecer la contraseña la libera
+    await cliente.query(
+      'DELETE FROM login_intentos WHERE email = (SELECT email FROM usuarios WHERE id = $1)',
+      [rows[0].usuario_id]
+    );
     await cliente.query(
       'UPDATE password_resets SET usado_en = now() WHERE usuario_id = $1 AND usado_en IS NULL',
       [rows[0].usuario_id]

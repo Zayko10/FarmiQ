@@ -6,6 +6,8 @@ const perfilRoutes = require('./routes/perfil.routes');
 const medicamentosRoutes = require('./routes/medicamentos.routes');
 const boticasRoutes = require('./routes/boticas.routes');
 const favoritosRoutes = require('./routes/favoritos.routes');
+const reservasRoutes = require('./routes/reservas.routes');
+const panelRoutes = require('./routes/panel.routes');
 
 const app = express();
 
@@ -31,5 +33,7 @@ app.use('/api/v1/perfil', perfilRoutes);
 app.use('/api/v1/medicamentos', medicamentosRoutes);
 app.use('/api/v1/boticas', boticasRoutes);
 app.use('/api/v1/favoritos', favoritosRoutes);
+app.use('/api/v1/reservas', reservasRoutes);
+app.use('/api/v1/panel', panelRoutes);
 
 module.exports = app;

@@ -19,8 +19,10 @@ async function obtenerDetalle(req, res) {
       `SELECT m.id, m.nombre, m.principio_activo, m.concentracion, m.presentacion,
               m.categoria, m.es_generico, m.requiere_receta,
               m.dosis_referencial, m.prospecto_url,
+              m.laboratorio, m.descripcion, m.indicaciones, m.contraindicaciones,
+              m.efectos_adversos, m.conservacion,
               MIN(i.precio)::float8                 AS precio_desde,
-              COALESCE(bool_or(i.stock > 0), false) AS disponible
+              COALESCE(bool_or((i.stock - i.stock_reservado) > 0), false) AS disponible
          FROM medicamentos m
          LEFT JOIN inventario i ON i.medicamento_id = m.id
          LEFT JOIN boticas b    ON b.id = i.botica_id AND b.activa
@@ -45,6 +47,10 @@ async function obtenerDetalle(req, res) {
           presentacion: m.presentacion,
           dosis_referencial: m.dosis_referencial,
           prospecto_url: m.prospecto_url,
+          indicaciones: m.indicaciones,
+          contraindicaciones: m.contraindicaciones,
+          efectos_adversos: m.efectos_adversos,
+          conservacion: m.conservacion,
           aviso: AVISO,
         }
       : { disponible: false, mensaje: 'Ficha técnica no disponible' };
@@ -70,6 +76,8 @@ async function obtenerDetalle(req, res) {
         categoria: m.categoria,
         es_generico: m.es_generico,
         requiere_receta: m.requiere_receta,
+        laboratorio: m.laboratorio,
+        descripcion: m.descripcion,
         precio_desde: m.precio_desde,
         disponible: m.disponible,
       },

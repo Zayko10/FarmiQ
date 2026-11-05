@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 
 import '../services/api_client.dart';
 import '../services/medicamentos_service.dart';
+import '../services/ubicacion_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/estado_vacio.dart';
 import '../widgets/medicamento_card.dart';
+import 'detalle_screen.dart';
 
 enum _Estado { inicial, cargando, resultados, vacio, error }
 
@@ -25,6 +27,7 @@ class BuscarScreenState extends State<BuscarScreen> {
     'precio_asc': 'Menor precio',
     'precio_desc': 'Mayor precio',
     'disponibilidad': 'Disponibles primero',
+    'distancia': 'Más cercana',
   };
 
   final _controller = TextEditingController();
@@ -100,8 +103,29 @@ class BuscarScreenState extends State<BuscarScreen> {
     final id = ++_peticion;
     setState(() => _estado = _Estado.cargando);
 
+    // Ordenar por cercanía necesita la ubicación del cliente
+    var posicion = UbicacionService.ultima;
+    if (_orden == 'distancia' && posicion == null) {
+      final ubicacion = await UbicacionService.obtener();
+      posicion = ubicacion.posicion;
+      if (posicion == null) {
+        if (!mounted || id != _peticion) return;
+        setState(() {
+          _orden = 'relevancia';
+          _error = ubicacion.error ?? 'No pudimos obtener tu ubicación.';
+          _estado = _Estado.error;
+        });
+        return;
+      }
+    }
+
     try {
-      final resultado = await _servicio.buscar(q: q, orden: _orden, soloStock: _soloStock);
+      final resultado = await _servicio.buscar(
+        q: q,
+        orden: _orden,
+        soloStock: _soloStock,
+        posicion: posicion,
+      );
       if (!mounted || id != _peticion) return;
       setState(() {
         _resultado = resultado;
@@ -252,7 +276,15 @@ class BuscarScreenState extends State<BuscarScreen> {
                 style: const TextStyle(color: AppColors.textoSuave),
               );
             }
-            return MedicamentoCard(medicamento: lista[indice - 1]);
+            final m = lista[indice - 1];
+            return MedicamentoCard(
+              medicamento: m,
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => DetalleScreen(medicamentoId: m.id, nombre: m.nombre),
+                ),
+              ),
+            );
           },
         );
     }

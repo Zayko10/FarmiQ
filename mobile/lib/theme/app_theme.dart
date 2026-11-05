@@ -65,6 +65,15 @@ TextTheme _textTheme(TextTheme base) {
   );
 }
 
+/// Colores de la interfaz del personal de botica (distinta a la del cliente).
+class ColoresPersonal {
+  ColoresPersonal._();
+
+  static const Color primario = Color(0xFF0E5E5A);
+  static const Color acento = Color(0xFFE9A23B);
+  static const Color fondo = Color(0xFFEEF3F2);
+}
+
 ThemeData construirTema() {
   final esquema = ColorScheme.fromSeed(seedColor: AppColors.azul).copyWith(
     primary: AppColors.azul,
@@ -74,42 +83,61 @@ ThemeData construirTema() {
     surface: Colors.white,
     error: AppColors.alerta,
   );
+  return _armarTema(esquema, fondo: AppColors.fondo, appBarOscuro: false);
+}
+
+/// Tema de la interfaz del personal: verde petróleo con acento ámbar y barra superior oscura.
+ThemeData construirTemaPersonal() {
+  final esquema = ColorScheme.fromSeed(seedColor: ColoresPersonal.primario).copyWith(
+    primary: ColoresPersonal.primario,
+    onPrimary: Colors.white,
+    secondary: ColoresPersonal.acento,
+    onSecondary: Colors.black,
+    surface: Colors.white,
+    error: AppColors.alerta,
+  );
+  return _armarTema(esquema, fondo: ColoresPersonal.fondo, appBarOscuro: true);
+}
+
+ThemeData _armarTema(ColorScheme esquema, {required Color fondo, required bool appBarOscuro}) {
   final base = ThemeData(useMaterial3: true, colorScheme: esquema);
   final textos = _textTheme(base.textTheme).apply(
     bodyColor: AppColors.texto,
     displayColor: AppColors.texto,
   );
+  final colorBarra = appBarOscuro ? esquema.primary : Colors.white;
+  final colorTextoBarra = appBarOscuro ? Colors.white : esquema.primary;
 
   return base.copyWith(
-    scaffoldBackgroundColor: AppColors.fondo,
+    scaffoldBackgroundColor: fondo,
     textTheme: textos,
     appBarTheme: AppBarTheme(
-      backgroundColor: Colors.white,
-      foregroundColor: AppColors.azul,
+      backgroundColor: colorBarra,
+      foregroundColor: colorTextoBarra,
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: false,
       titleTextStyle: textos.titleLarge?.copyWith(
         fontWeight: FontWeight.w600,
-        color: AppColors.azul,
+        color: colorTextoBarra,
       ),
     ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
-      indicatorColor: AppColors.azul.withValues(alpha: 0.12),
+      indicatorColor: esquema.primary.withValues(alpha: 0.12),
     ),
     chipTheme: ChipThemeData(
       backgroundColor: Colors.white,
-      selectedColor: AppColors.azul.withValues(alpha: 0.12),
-      checkmarkColor: AppColors.azul,
+      selectedColor: esquema.primary.withValues(alpha: 0.12),
+      checkmarkColor: esquema.primary,
       side: const BorderSide(color: AppColors.borde),
       shape: const StadiumBorder(),
       labelStyle: textos.labelLarge,
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: AppColors.azul,
+        backgroundColor: esquema.primary,
         foregroundColor: Colors.white,
         minimumSize: const Size(64, 48),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),

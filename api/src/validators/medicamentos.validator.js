@@ -54,4 +54,33 @@ const ubicacionSchema = z
     }
   });
 
-module.exports = { busquedaSchema, idSchema, ubicacionSchema };
+// Sedes cercanas: ubicación opcional + radio de búsqueda opcional (requiere ubicación)
+const sedesSchema = z
+  .object({
+    lat: numero(-90, 90, 'Latitud no válida').optional(),
+    lng: numero(-180, 180, 'Longitud no válida').optional(),
+    radio_km: numero(0.1, 200, 'El radio debe estar entre 0.1 y 200 km').optional(),
+  })
+  .superRefine((datos, ctx) => {
+    if ((datos.lat === undefined) !== (datos.lng === undefined)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: [datos.lat === undefined ? 'lat' : 'lng'],
+        message: 'Envía lat y lng juntas para calcular la distancia',
+      });
+    } else if (datos.radio_km !== undefined && datos.lat === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['lat'],
+        message: 'Se necesita la ubicación (lat y lng) para filtrar por radio',
+      });
+    }
+  });
+
+// Productos de una botica: búsqueda y filtro de stock opcionales
+const productosBoticaSchema = z.object({
+  q: z.string().trim().max(100).optional(),
+  solo_stock: z.enum(['true', 'false'], { error: 'solo_stock debe ser true o false' }).optional(),
+});
+
+module.exports = { busquedaSchema, idSchema, ubicacionSchema, sedesSchema, productosBoticaSchema };

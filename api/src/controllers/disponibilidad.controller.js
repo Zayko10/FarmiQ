@@ -40,14 +40,14 @@ async function obtenerDisponibilidad(req, res) {
               b.telefono,
               b.latitud::float8  AS latitud,
               b.longitud::float8 AS longitud,
-              i.stock,
+              (i.stock - i.stock_reservado) AS stock,
               i.precio::float8   AS precio,
               i.actualizado_en,
               FLOOR(EXTRACT(EPOCH FROM (now() - i.actualizado_en)) / 60)::int AS minutos_desde_actualizacion,
               ROUND((${distanciaCol})::numeric, 2)::float8 AS distancia_km
          FROM inventario i
          JOIN boticas b ON b.id = i.botica_id AND b.activa
-        WHERE i.medicamento_id = $1 AND i.stock > 0
+        WHERE i.medicamento_id = $1 AND (i.stock - i.stock_reservado) > 0
         ORDER BY distancia_km ASC NULLS LAST, i.precio ASC, b.nombre`,
       params
     );

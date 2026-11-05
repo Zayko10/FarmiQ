@@ -157,3 +157,53 @@ describe('GET /api/v1/boticas (pantalla Sedes)', () => {
     expect(res.statusCode).toBe(400);
   });
 });
+
+describe('GET /api/v1/boticas con radio, detalle y productos (geolocalización)', () => {
+  it('con radio_km solo devuelve las sedes dentro del radio', async () => {
+    const res = await request(app).get('/api/v1/boticas').query({ ...CERCA, radio_km: 1 });
+    expect(res.statusCode).toBe(200);
+    const nombres = res.body.boticas.map((b) => b.nombre);
+    expect(nombres[0]).toBe('Botica Elna');
+    expect(nombres).not.toContain('TEST Botica A (2 km)');
+    res.body.boticas.forEach((b) => expect(b.distancia_km).toBeLessThanOrEqual(1));
+  });
+
+  it('un radio mayor incluye más sedes, de la más cercana a la más lejana', async () => {
+    const res = await request(app).get('/api/v1/boticas').query({ ...CERCA, radio_km: 10 });
+    expect(res.body.boticas.length).toBeGreaterThan(3);
+    const d = res.body.boticas.map((b) => b.distancia_km);
+    expect(d).toEqual([...d].sort((a, b) => a - b));
+    d.forEach((km) => expect(km).toBeLessThanOrEqual(10));
+  });
+
+  it('sin sedes dentro del radio explica cómo ampliar la búsqueda', async () => {
+    const res = await request(app).get('/api/v1/boticas').query({ lat: -33.4, lng: -70.6, radio_km: 5 });
+    expect(res.body.boticas).toEqual([]);
+    expect(res.body.mensaje).toMatch(/5 km/);
+  });
+
+  it('pide la ubicación si se envía radio_km sin lat y lng', async () => {
+    const res = await request(app).get('/api/v1/boticas').query({ radio_km: 5 });
+    expect(res.statusCode).toBe(400);
+  });
+
+  it('muestra una botica y sus productos con stock y precio', async () => {
+    const lista = await request(app).get('/api/v1/boticas').query(CERCA);
+    const id = lista.body.boticas[0].id;
+
+    const botica = await request(app).get(`/api/v1/boticas/${id}`).query(CERCA);
+    expect(botica.statusCode).toBe(200);
+    expect(botica.body.botica.nombre).toBe('Botica Elna');
+    expect(botica.body.botica.distancia_km).toBeLessThan(1);
+
+    const productos = await request(app).get(`/api/v1/boticas/${id}/productos`).query({ q: 'advil' });
+    expect(productos.statusCode).toBe(200);
+    expect(productos.body.productos[0].nombre).toBe('Advil');
+    expect(productos.body.productos[0].stock).toBeGreaterThan(0);
+  });
+
+  it('responde 404 para una botica inexistente y 400 para un id inválido', async () => {
+    expect((await request(app).get('/api/v1/boticas/999999')).statusCode).toBe(404);
+    expect((await request(app).get('/api/v1/boticas/abc')).statusCode).toBe(400);
+  });
+});

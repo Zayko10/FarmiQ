@@ -5,7 +5,7 @@ const { idSchema } = require('../validators/medicamentos.validator');
 const PRECIOS = `
   SELECT i.medicamento_id,
          MIN(i.precio)::float8 AS precio_desde,
-         bool_or(i.stock > 0)  AS disponible
+         bool_or((i.stock - i.stock_reservado) > 0)  AS disponible
     FROM inventario i
     JOIN boticas b ON b.id = i.botica_id AND b.activa
    GROUP BY i.medicamento_id`;

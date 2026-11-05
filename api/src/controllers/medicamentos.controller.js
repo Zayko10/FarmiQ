@@ -55,7 +55,7 @@ async function buscarMedicamentos(req, res) {
     distanciaCol = distanciaSql(`${pLat}::float8`, `${pLng}::float8`);
   }
   if (soloStock) {
-    condiciones.push('i.stock > 0');
+    condiciones.push('(i.stock - i.stock_reservado) > 0');
   }
   if (distancia_max_km !== undefined) {
     condiciones.push(`${distanciaCol} <= ${marcador(distancia_max_km)}::float8`);
@@ -82,7 +82,7 @@ async function buscarMedicamentos(req, res) {
               m.es_generico,
               m.requiere_receta,
               MIN(i.precio)::float8                 AS precio_desde,
-              COALESCE(bool_or(i.stock > 0), false) AS disponible,
+              COALESCE(bool_or((i.stock - i.stock_reservado) > 0), false) AS disponible,
               ROUND(MIN(${distanciaCol})::numeric, 2)::float8 AS distancia_km
          FROM medicamentos m
          JOIN inventario i ON i.medicamento_id = m.id
